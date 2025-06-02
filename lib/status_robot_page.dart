@@ -1,190 +1,291 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:medigo/controllers/status_robot_controller.dart';
 
-class StatusRobotPage extends StatefulWidget {
+class StatusRobotPage extends StatelessWidget {
   const StatusRobotPage({Key? key}) : super(key: key);
 
   @override
-  State<StatusRobotPage> createState() => _StatusRobotPageState();
-}
-
-class _StatusRobotPageState extends State<StatusRobotPage>
-    with SingleTickerProviderStateMixin {
-  bool _isRemoteCommand = true;
-
-  late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
-
-  final Color blueAccent = Colors.blueAccent;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
-
-    _fadeAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    );
-
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  Widget _buildButton(String text, VoidCallback onPressed) {
-    return Expanded(
-      child: Card(
-        elevation: 8,
-        shadowColor: blueAccent.withOpacity(0.5),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(20),
-          splashColor: blueAccent.withOpacity(0.3),
-          onTap: onPressed,
-          child: Container(
-            height: 55,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              gradient: LinearGradient(
-                colors: [blueAccent.withOpacity(0.8), blueAccent],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: Text(
-              text,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 1.1,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final controller = Provider.of<StatusRobotController>(context);
+    final blueAccent = Colors.blueAccent;
+    final lightGrey = const Color(0xFFF0F0F0);
+
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: lightGrey,
       appBar: AppBar(
-        backgroundColor: Colors.black,
-        elevation: 0,
+        backgroundColor: blueAccent,
         title: const Text(
-          'Status Robot',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-          ),
+          "Status Robot",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
-          child: Column(
-            children: [
-              // Card fix, doar textul se schimbă jos
-              Card(
-                elevation: 10,
-                shadowColor: blueAccent.withOpacity(0.6),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Mod de Comandă',
+              style: TextStyle(
+                color: blueAccent.shade700,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Row(
+              children: [
+                Switch(
+                  value: controller.modSmartphone,
+                  onChanged: controller.toggleModSmartphone,
+                  activeColor: blueAccent,
                 ),
-                color: Colors.grey[900],
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 24,
-                    horizontal: 20,
+                const SizedBox(width: 12),
+                Text(
+                  controller.modSmartphone ? 'Mod Smartphone' : 'Mod Automat',
+                  style: TextStyle(color: blueAccent.shade400, fontSize: 16),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Zona cu cele 5 butoane (săgeți + STOP)
+            Column(
+              children: [
+                // Săgeată sus
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (controller.modSmartphone) {
+                        controller.trimiteComanda("fata");
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: blueAccent,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 24,
+                      ),
+                      shape: const CircleBorder(),
+                    ),
+                    child: const Icon(Icons.arrow_upward, color: Colors.white),
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
+                ),
+                const SizedBox(height: 10),
+
+                // Stânga, Stop, Dreapta
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        if (controller.modSmartphone) {
+                          controller.trimiteComanda("stanga");
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: blueAccent,
+                        shape: const CircleBorder(),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 24,
+                        ),
+                      ),
+                      child: const Icon(Icons.arrow_back, color: Colors.white),
+                    ),
+                    const SizedBox(width: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (controller.modSmartphone) {
+                          controller.trimiteComanda("stop");
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                          horizontal: 28,
+                        ),
+                      ),
+                      child: const Text(
+                        'STOP',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (controller.modSmartphone) {
+                          controller.trimiteComanda("dreapta");
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: blueAccent,
+                        shape: const CircleBorder(),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 24,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.arrow_forward,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+
+                // Săgeată jos
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (controller.modSmartphone) {
+                        controller.trimiteComanda("spate");
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: blueAccent,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 24,
+                      ),
+                      shape: const CircleBorder(),
+                    ),
+                    child: const Icon(
+                      Icons.arrow_downward,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: controller.incarcaRapoarte,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: blueAccent,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('Raport Robot'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      /* await controller.incarcaAvarii();
+                      final snack = SnackBar(
+                        backgroundColor: Colors.grey[900],
+                        content: Text(
+                          controller.formatAvarie(),
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(snack);
+                      */
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: blueAccent,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('Raport Avarii'),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+
+            if (controller.loading)
+              const Center(
+                child: CircularProgressIndicator(color: Colors.blueAccent),
+              ),
+
+            if (!controller.loading && controller.rapoarte.isNotEmpty)
+              Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blueAccent.withOpacity(0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      controller.formatRaport(),
+                      style: const TextStyle(
+                        color: Colors.black87,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        'Mod de Comandă',
-                        style: TextStyle(
-                          color: blueAccent,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1.1,
+                      IconButton(
+                        onPressed: controller.currentIndex > 0
+                            ? controller.decrementIndex
+                            : null,
+                        icon: Icon(
+                          Icons.arrow_back_ios,
+                          color: controller.currentIndex > 0
+                              ? blueAccent
+                              : Colors.grey,
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      Transform.scale(
-                        scale: 1.3,
-                        child: Switch(
-                          value: _isRemoteCommand,
-                          activeColor: blueAccent,
-                          inactiveThumbColor: Colors.grey[400],
-                          inactiveTrackColor: Colors.grey[700],
-                          onChanged: (val) {
-                            setState(() {
-                              _isRemoteCommand = val;
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      // Doar textul este animat, nu întreg cardul
-                      SizedBox(
-                        height: 24,
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 400),
-                          transitionBuilder: (child, animation) {
-                            return FadeTransition(
-                              opacity: animation,
-                              child: child,
-                            );
-                          },
-                          child: Text(
-                            _isRemoteCommand
-                                ? 'Comandă de la Distanță'
-                                : 'Comandă Smartphone',
-                            key: ValueKey<bool>(_isRemoteCommand),
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
+                      const SizedBox(width: 20),
+                      IconButton(
+                        onPressed:
+                            controller.currentIndex <
+                                controller.rapoarte.length - 1
+                            ? controller.incrementIndex
+                            : null,
+                        icon: Icon(
+                          Icons.arrow_forward_ios,
+                          color:
+                              controller.currentIndex <
+                                  controller.rapoarte.length - 1
+                              ? blueAccent
+                              : Colors.grey,
                         ),
                       ),
                     ],
                   ),
-                ),
-              ),
-
-              const SizedBox(height: 60),
-
-              // Butoane pe centrul ecranului
-              Row(
-                children: [
-                  _buildButton('Raport Robot', () {
-                    // TODO: acțiune Raport Robot
-                  }),
-                  const SizedBox(width: 20),
-                  _buildButton('Raport Avarii', () {
-                    // TODO: acțiune Raport Avarii
-                  }),
                 ],
               ),
-            ],
-          ),
+
+            if (!controller.loading && controller.rapoarte.isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: Text(
+                  'Niciun raport încă.',
+                  style: TextStyle(color: blueAccent.shade400),
+                ),
+              ),
+          ],
         ),
       ),
     );

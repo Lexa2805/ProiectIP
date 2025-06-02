@@ -1,206 +1,144 @@
 import 'package:flutter/material.dart';
-import 'signup_page.dart';
-import 'forgot_password_page.dart';
-import 'dashboard_page.dart';
-import 'api/api_service.dart';
+import 'package:provider/provider.dart';
+import 'package:medigo/controllers/login_controller.dart';
+import 'package:medigo/dashboard_page.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+class LoginPage extends StatelessWidget {
+  LoginPage({Key? key}) : super(key: key);
 
-  @override
-  State<LoginPage> createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage>
-    with SingleTickerProviderStateMixin {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-
-  late AnimationController _animController;
-  late Animation<double> _fadeAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _animController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    );
-    _fadeAnimation = CurvedAnimation(
-      parent: _animController,
-      curve: Curves.easeIn,
-    );
-    _animController.forward();
-  }
-
-  @override
-  void dispose() {
-    _animController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _login() async {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text;
-
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Te rugăm să completezi toate câmpurile')),
-      );
-      return;
-    }
-
-    try {
-      final mesaj = await ApiService.login(email, password);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(mesaj)));
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => DashboardPage(email: email)),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Eroare la autentificare: $e')));
-    }
-  }
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    final blueAccent = Colors.blueAccent;
+    final controller = Provider.of<LoginController>(context);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (controller.errorMessage != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(controller.errorMessage!),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    });
+
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Bine ai venit în MediGo!',
-                    style: TextStyle(
-                      color: blueAccent,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                  TextField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.email, color: blueAccent),
-                      labelText: 'Email',
-                      labelStyle: TextStyle(color: blueAccent),
-                      filled: true,
-                      fillColor: Colors.grey[900],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: blueAccent),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: blueAccent, width: 2),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.lock, color: blueAccent),
-                      labelText: 'Parolă',
-                      labelStyle: TextStyle(color: blueAccent),
-                      filled: true,
-                      fillColor: Colors.grey[900],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: blueAccent),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: blueAccent, width: 2),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const ForgotPasswordPage(),
-                          ),
-                        );
-                      },
-                      child: Text(
-                        'Ai uitat parola?',
-                        style: TextStyle(color: blueAccent),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _login,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: blueAccent,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 6,
-                        shadowColor: blueAccent.withOpacity(0.5),
-                      ),
-                      child: const Text(
-                        'Conectează-te',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+      backgroundColor: const Color(0xFFF2F3F5), // Gri deschis
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'MediGo\nNoi ți-o livrăm mai bine',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF007BFF), // Albastru accentuat
+                ),
+              ),
+              const SizedBox(height: 40),
+              Card(
+                elevation: 8,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
                     children: [
-                      Text(
-                        'Nu ai cont? ',
-                        style: TextStyle(color: Colors.grey[400]),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const SignupPage(),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          'Înregistrează-te!',
-                          style: TextStyle(
-                            color: blueAccent,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      TextField(
+                        controller: _emailController,
+                        decoration: const InputDecoration(
+                          labelText: 'Email',
+                          prefixIcon: Icon(Icons.email),
                         ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Parola',
+                          prefixIcon: Icon(Icons.lock),
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      controller.isLoading
+                          ? const CircularProgressIndicator()
+                          : SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  backgroundColor: const Color(0xFF007BFF),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  final email = _emailController.text.trim();
+                                  final password = _passwordController.text
+                                      .trim();
+                                  final result = await controller.login(
+                                    email,
+                                    password,
+                                  );
+
+                                  if (result['success'] == true) {
+                                    final name = result['name'] ?? 'Utilizator';
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Autentificare reușită! Bine ai venit, $name!',
+                                        ),
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    );
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            DashboardPage(name: name),
+                                      ),
+                                    );
+                                  }
+                                },
+                                child: const Text(
+                                  'Login',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ),
+                            ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/forgot_password');
+                            },
+                            child: const Text('Ai uitat parola?'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/signup');
+                            },
+                            child: const Text('Înregistrează-te'),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),

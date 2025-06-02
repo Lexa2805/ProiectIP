@@ -1,5 +1,7 @@
+// test_api_page.dart
+
 import 'package:flutter/material.dart';
-import 'api/api_service.dart';
+import 'package:medigo/endpoints/get_robot_raport_endp.dart';
 
 class TestApiPage extends StatefulWidget {
   const TestApiPage({Key? key}) : super(key: key);
@@ -9,107 +11,120 @@ class TestApiPage extends StatefulWidget {
 }
 
 class _TestApiPageState extends State<TestApiPage> {
-  final _emailController = TextEditingController(text: 'test@spital.ro');
-  final _passwordController = TextEditingController(text: '123456');
+  List<RaportRobot> _rapoarte = [];
+  int _currentIndex = 0;
+  bool _loading = false;
 
-  String _responseText = '';
-  bool _isLoading = false;
-
-  Future<void> _login() async {
+  Future<void> _incarcaRapoarte() async {
     setState(() {
-      _isLoading = true;
-      _responseText = '';
+      _loading = true;
     });
-
     try {
-      String message = await ApiService.login(
-        _emailController.text.trim(),
-        _passwordController.text,
-      );
-
+      final rapoarte = await GetRobotRaportEndpoint.getRapoarte();
       setState(() {
-        _responseText = message;
+        _rapoarte = rapoarte;
+        _currentIndex = 0;
       });
     } catch (e) {
-      setState(() {
-        _responseText = 'Eroare: $e';
-      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Eroare la încărcare: $e')));
     } finally {
       setState(() {
-        _isLoading = false;
+        _loading = false;
       });
     }
   }
 
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
+  String _formatRaport(RaportRobot raport) {
+    final data =
+        DateTime.tryParse(
+          raport.timestamp,
+        )?.toLocal().toString().split('.')[0] ??
+        'Dată invalidă';
+    final actiune = raport.actiune;
+    final detalii = raport.detalii ?? 'Fără detalii';
+    return '[$data]\nActiune: $actiune\nDetalii: $detalii';
   }
 
   @override
   Widget build(BuildContext context) {
-    final blueAccent = Colors.blueAccent;
-
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Test Autentificare API'),
-        backgroundColor: blueAccent,
+        backgroundColor: Colors.black,
+        title: const Text('Test API', style: TextStyle(color: Colors.white)),
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            TextField(
-              controller: _emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                prefixIcon: Icon(Icons.email, color: blueAccent),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 15),
-            TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(
-                labelText: 'Parolă',
-                prefixIcon: Icon(Icons.lock, color: blueAccent),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 25),
             ElevatedButton(
-              onPressed: _isLoading ? null : _login,
+              onPressed: _incarcaRapoarte,
               style: ElevatedButton.styleFrom(
-                backgroundColor: blueAccent,
+                backgroundColor: Colors.blueAccent,
                 padding: const EdgeInsets.symmetric(
-                  vertical: 14,
-                  horizontal: 40,
+                  vertical: 16,
+                  horizontal: 24,
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: _isLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    )
-                  : const Text('Conectează-te'),
+              child: const Text('Încarcă Rapoarte Robot'),
             ),
-            const SizedBox(height: 30),
-            Text(_responseText, style: const TextStyle(fontSize: 16)),
+            const SizedBox(height: 20),
+            if (_loading) const CircularProgressIndicator(color: Colors.white),
+            if (_rapoarte.isNotEmpty && !_loading)
+              Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[850],
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      _formatRaport(_rapoarte[_currentIndex]),
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: _currentIndex > 0
+                            ? () => setState(() => _currentIndex--)
+                            : null,
+                        icon: const Icon(
+                          Icons.arrow_back_ios,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      IconButton(
+                        onPressed: _currentIndex < _rapoarte.length - 1
+                            ? () => setState(() => _currentIndex++)
+                            : null,
+                        icon: const Icon(
+                          Icons.arrow_forward_ios,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            if (_rapoarte.isEmpty && !_loading)
+              const Padding(
+                padding: EdgeInsets.only(top: 20),
+                child: Text(
+                  'Niciun raport încă.',
+                  style: TextStyle(color: Colors.white70),
+                ),
+              ),
           ],
         ),
       ),
