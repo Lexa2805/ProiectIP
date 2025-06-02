@@ -4,6 +4,7 @@ from app.db import get_db
 from app.models import RaportTransport
 from pydantic import BaseModel
 from datetime import datetime
+from app.deps import get_current_active_user
 
 router = APIRouter()
 
@@ -25,3 +26,7 @@ def adauga_raport(raport: RaportIn, db: Session = Depends(get_db)):
 @router.get("/robot/rapoarte", tags=["robot"])
 def get_rapoarte(db: Session = Depends(get_db)):
     return db.query(RaportTransport).order_by(RaportTransport.timestamp.desc()).all()
+
+@router.get("/api/alarme")
+def get_alarme(db: Session = Depends(get_db)):
+    return {"mesaj": "Alarme returnate"}

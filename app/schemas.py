@@ -1,5 +1,5 @@
 # schemas.py
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr,validator
 from typing import List, Optional
 from datetime import datetime
 
@@ -79,3 +79,21 @@ class ConfirmareRfidCreate(BaseModel):
 
     class Config:
         orm_mode = True
+
+class AlarmaCreate(BaseModel):
+    tip_alarma: str
+    descriere: str
+    data_ora: datetime
+    ID_comanda: int
+    status: str
+
+    class Config:
+        orm_mode = True
+
+
+class TeleghidareRequest(BaseModel):
+    status: str  # "rc-on" sau "rc-off"
+    username: str
+    class Config:
+        orm_mode = True
+

@@ -1,39 +1,35 @@
-# deps.py
-
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.orm import Session
 from jose import JWTError, jwt
-from pydantic import BaseModel
+from fastapi import Depends, HTTPException, status  # ← aceste importuri lipsesc
+from fastapi.security import OAuth2PasswordBearer
 
-# Configurări
-SECRET_KEY = "mysecret"  # ideal din .env
+from app.db import get_db
+from app.models import Utilizator
+
+SECRET_KEY = "secretul_tău_lung_și_sigur"
 ALGORITHM = "HS256"
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
-# Ruta tokenului
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")  # trebuie să corespundă cu ruta de autentificare
 
-# Model pentru datele din token
-class TokenData(BaseModel):
-    username: str | None = None
-
-# Funcție utilitară pentru decodare
-def verify_token(token: str, credentials_exception):
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Token invalid sau lipsă",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
-        return TokenData(username=username)
     except JWTError:
         raise credentials_exception
 
-# Funcția principală care se folosește cu Depends
-def get_current_active_user(token: str = Depends(oauth2_scheme)):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
+    user = db.query(Utilizator).filter(Utilizator.username == username).first()
+    if user is None:
+        raise credentials_exception
+    return user
 
-    token_data = verify_token(token, credentials_exception)
-    return {"username": token_data.username}
+
+def get_current_active_user(current_user: Utilizator = Depends(get_current_user)):
+    return current_user

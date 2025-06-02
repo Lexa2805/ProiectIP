@@ -6,8 +6,6 @@ from sqlalchemy.orm import relationship
 from app.db import Base
 from datetime import datetime
 
-#Base = declarative_base() 
-
 class Utilizator(Base):
     __tablename__ = "utilizatori"
 
@@ -77,6 +75,7 @@ class RaportTransport(Base):
     timestamp = Column(DateTime, default=datetime.utcnow)
     actiune = Column(String, nullable=False)
     detalii = Column(String, nullable=True)
+    nume_utilizator = Column(String, nullable=False)
 
 class ConfirmarePreluare(Base):
     __tablename__ = "confirmari_preluare"
@@ -85,6 +84,7 @@ class ConfirmarePreluare(Base):
     ID_pacient = Column(Integer, nullable=False)
     nume_asistenta = Column(String)
     timestamp = Column(DateTime)
+    nume_utilizator = Column(String, nullable=False)
 
 class ConfirmarePreluareRfid(Base):
     __tablename__ = "confirmari_rfid" 
@@ -92,6 +92,16 @@ class ConfirmarePreluareRfid(Base):
     id = Column(Integer, primary_key=True, index=True)
     rfid_medicament = Column(String)
     timestamp = Column(DateTime)
+
+class Alarme(Base):
+    __tablename__ = "alarme"  
+
+    id = Column("ID_alarma", Integer, primary_key=True, index=True)
+    tip_alarma = Column("tip_alarma", String, nullable=False)
+    descriere = Column("descriere", String, nullable=False)
+    data_ora = Column("data_ora", DateTime, default=datetime.utcnow)
+    ID_comanda = Column("ID_comanda", Integer, nullable=True)
+    status = Column("status", String, nullable=True)
 
 
 class Token(BaseModel):
@@ -132,6 +142,7 @@ __all__ = [
     "Medicament", 
     "Utilizator",
     "ConfirmarePreluare",
-    "RaportTransport"
+    "RaportTransport",
+    "Alarme"
 ]
 

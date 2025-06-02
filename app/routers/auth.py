@@ -1,8 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends
-from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from app.db import get_db
-from app.models import Utilizator  # asigură-te că modelul e corect importat
+from app.models import Utilizator
+from pydantic import BaseModel
+from app.auth_utils import verifica_parola
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -11,13 +12,11 @@ class LoginRequest(BaseModel):
     password: str
 
 @router.post("/login")
-def login(request: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(Utilizator).filter(Utilizator.email == request.email).first()
+def login(data: LoginRequest, db: Session = Depends(get_db)):
+    user = db.query(Utilizator).filter(Utilizator.email == data.email).first()
 
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+    if not user or not verifica_parola(data.password, user.parola):
+        raise HTTPException(status_code=401, detail="Email sau parolă incorecte")
 
-    if user.parola != request.password:
-        raise HTTPException(status_code=401, detail="Invalid password")
+    return {"message": f"Bun venit, {user.nume} {user.prenume}", "rol": user.rol}
 
-    return {"message": f"Bine ai venit, {user.username}!"}
