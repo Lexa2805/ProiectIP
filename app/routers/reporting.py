@@ -2,31 +2,17 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db import get_db
 from app.models import RaportTransport
+from app.schemas import RaportTransportOut
 from pydantic import BaseModel
 from datetime import datetime
 from app.deps import get_current_active_user
-
+from typing import List
 router = APIRouter()
 
 class RaportIn(BaseModel):
     actiune: str
     detalii: str | None = None
 
-@router.post("/raport", tags=["rapoarte"])
-def adauga_raport(raport: RaportIn, db: Session = Depends(get_db)):
-    raport_nou = RaportTransport(
-        actiune=raport.actiune,
-        detalii=raport.detalii
-    )
-    db.add(raport_nou)
-    db.commit()
-    db.refresh(raport_nou)
-    return {"message": "Raport salvat", "id": raport_nou.id}
-
-@router.get("/robot/rapoarte", tags=["robot"])
-def get_rapoarte(db: Session = Depends(get_db)):
-    return db.query(RaportTransport).order_by(RaportTransport.timestamp.desc()).all()
-
-@router.get("/api/alarme")
-def get_alarme(db: Session = Depends(get_db)):
-    return {"mesaj": "Alarme returnate"}
+# @router.get("/robot/rapoarte", response_model=List[RaportTransportOut], tags=["robot"])
+# def get_rapoarte_robot(db: Session = Depends(get_db)):
+#     return db.query(RaportTransport).order_by(RaportTransport.timestamp.desc()).all()

@@ -18,5 +18,5 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
     if not user or not verifica_parola(data.password, user.parola):
         raise HTTPException(status_code=401, detail="Email sau parolă incorecte")
 
-    return {"message": f"Bun venit, {user.nume} {user.prenume}", "rol": user.rol}
+    return {"message": f" {user.nume} {user.prenume}", "rol": user.rol}
 

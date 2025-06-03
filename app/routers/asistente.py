@@ -48,32 +48,4 @@ def get_medicamente_pacient(id_pacient: int, db: Session = Depends(get_db)):
 
     return rezultate
 
-@router.get("/rapoarte", response_model=List[RaportTransportOut], tags=["rapoarte"])
-def get_rapoarte(db: Session = Depends(get_db)):
-    rapoarte = db.query(RaportTransport).order_by(RaportTransport.timestamp.desc()).all()
-    return rapoarte
-
-@router.post("/api/confirmari_rfid", tags=["asistente"])
-def primeste_confirmare_rfid(data: ConfirmareRfidCreate, db: Session = Depends(get_db)):
-    confirmare = ConfirmarePreluareRfid(**data.dict())
-    db.add(confirmare)
-    db.commit()
-    db.refresh(confirmare)
-    return {"status": "Confirmare înregistrată"}
-
-@router.get("/api/confirmari_rfid/ultimul", tags=["asistente"])
-def ultimul_tag(db: Session = Depends(get_db)):
-    ultima = (
-        db.query(ConfirmarePreluareRfid)
-        .order_by(ConfirmarePreluareRfid.timestamp.desc())
-        .first()
-    )
-    if ultima:
-        return {
-            "rfid": ultima.rfid_medicament,
-            "timestamp": str(ultima.timestamp)
-        }
-    raise HTTPException(status_code=404, detail="Nicio confirmare RFID găsită")
-
-
 

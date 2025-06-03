@@ -61,6 +61,7 @@ class RaportTransportOut(BaseModel):
     timestamp: datetime
     actiune: str
     detalii: str
+ 
 
     class Config:
         orm_mode = True
@@ -75,7 +76,6 @@ class ConfirmarePreluareCreate(BaseModel):
 
 class ConfirmareRfidCreate(BaseModel):
     rfid_medicament: str
-    timestamp: datetime
 
     class Config:
         orm_mode = True
@@ -92,8 +92,8 @@ class AlarmaCreate(BaseModel):
 
 
 class TeleghidareRequest(BaseModel):
-    status: str  # "rc-on" sau "rc-off"
-    username: str
+    status: str 
+
     class Config:
         orm_mode = True
 

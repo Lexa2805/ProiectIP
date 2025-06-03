@@ -75,7 +75,7 @@ class RaportTransport(Base):
     timestamp = Column(DateTime, default=datetime.utcnow)
     actiune = Column(String, nullable=False)
     detalii = Column(String, nullable=True)
-    nume_utilizator = Column(String, nullable=False)
+    
 
 class ConfirmarePreluare(Base):
     __tablename__ = "confirmari_preluare"
@@ -84,14 +84,14 @@ class ConfirmarePreluare(Base):
     ID_pacient = Column(Integer, nullable=False)
     nume_asistenta = Column(String)
     timestamp = Column(DateTime)
-    nume_utilizator = Column(String, nullable=False)
+    nume = Column(String, nullable=False)
 
 class ConfirmarePreluareRfid(Base):
-    __tablename__ = "confirmari_rfid" 
+     __tablename__ = "confirmari_rfid"
 
-    id = Column(Integer, primary_key=True, index=True)
-    rfid_medicament = Column(String)
-    timestamp = Column(DateTime)
+     id = Column(Integer, primary_key=True, index=True)
+     rfid_medicament = Column(String, nullable=False)
+     timestamp = Column(DateTime, default=datetime.utcnow)
 
 class Alarme(Base):
     __tablename__ = "alarme"  
