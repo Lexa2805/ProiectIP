@@ -186,16 +186,7 @@ class StatusRobotPage extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () async {
-                      /* await controller.incarcaAvarii();
-                      final snack = SnackBar(
-                        backgroundColor: Colors.grey[900],
-                        content: Text(
-                          controller.formatAvarie(),
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(snack);
-                      */
+                      await controller.incarcaAvarii();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: blueAccent,
@@ -208,6 +199,75 @@ class StatusRobotPage extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+            Consumer<StatusRobotController>(
+              builder: (context, controller, _) {
+                final avarie = controller.avarieCurenta;
+                if (controller.avarii.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Text(
+                      'Nicio avarie disponibilă.',
+                      style: TextStyle(color: blueAccent.shade700),
+                    ),
+                  );
+                }
+                final dataOra =
+                    DateTime.tryParse(
+                      avarie!.timestamp,
+                    )?.toLocal().toString().split('.')[0] ??
+                    'Dată invalidă';
+                return Card(
+                  color: Colors.grey[200],
+                  margin: const EdgeInsets.only(top: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: 4),
+                        Text(
+                          'Tip: ${avarie.tipAlarma}',
+                          style: TextStyle(fontSize: 13, color: Colors.black),
+                        ),
+                        Text(
+                          'Descriere: ${avarie.descriere}',
+                          style: TextStyle(fontSize: 13, color: Colors.black),
+                        ),
+                        Text(
+                          'Status: ${avarie.status}',
+                          style: TextStyle(fontSize: 13, color: Colors.black),
+                        ),
+                        Text(
+                          'Data și ora: $dataOra',
+                          style: TextStyle(fontSize: 13, color: Colors.black),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            IconButton(
+                              onPressed: controller.avariePrecedenta,
+                              icon: const Icon(Icons.arrow_back),
+                            ),
+                            Text(
+                              '${controller.index + 1} / ${controller.avarii.length}',
+                              style: TextStyle(color: Colors.black87),
+                            ),
+                            IconButton(
+                              onPressed: controller.avarieUrmatoare,
+                              icon: const Icon(Icons.arrow_forward),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
 
             const SizedBox(height: 20),
@@ -253,7 +313,7 @@ class StatusRobotPage extends StatelessWidget {
                           Icons.arrow_back_ios,
                           color: controller.currentIndex > 0
                               ? blueAccent
-                              : Colors.grey,
+                              : const Color.fromARGB(255, 12, 12, 12),
                         ),
                       ),
                       const SizedBox(width: 20),

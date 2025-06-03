@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class LoginEndpoint {
-  static const String baseUrl = 'http://10.0.2.2:8000';
+  static const String baseUrl = 'http://10.100.1.162:8000';
 
   static Future<String> login(String email, String password) async {
     try {

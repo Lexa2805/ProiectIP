@@ -27,7 +27,7 @@ class Medicament {
 class GetMedicamenteEndpoint {
   static Future<List<Medicament>> getMedicamente(int idPacient) async {
     final url = Uri.parse(
-      'http://10.0.2.2:8000/asistente/pacient/$idPacient/medicamente',
+      'http://10.100.1.162:8000/asistente/pacient/$idPacient/medicamente',
     );
     final response = await http.get(url);
 

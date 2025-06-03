@@ -14,7 +14,7 @@ class LoginController extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
 
-    final url = Uri.parse('http://10.0.2.2:8000/auth/login');
+    final url = Uri.parse('http://10.100.1.162:8000/auth/login');
 
     try {
       final response = await http.post(

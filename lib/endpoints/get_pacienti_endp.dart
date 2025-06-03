@@ -39,7 +39,7 @@ class Pacient {
 class GetPacientiEndpoint {
   static Future<List<Pacient>> getPacienti(int idSalon) async {
     final response = await http.get(
-      Uri.parse('http://10.0.2.2:8000/asistente/salon/$idSalon/pacienti'),
+      Uri.parse('http://10.100.1.162:8000/asistente/salon/$idSalon/pacienti'),
     );
 
     if (response.statusCode == 200) {

@@ -82,7 +82,8 @@ class StatusPacientiController extends ChangeNotifier {
 
   void selecteazaPacient(int id) {
     pacientSelectatId = id;
-    incarcaMedicamente();
-    notifyListeners();
+    medicamente = []; // Resetăm medicamentele înainte de încărcarea celor noi
+    notifyListeners(); // Afișează imediat UI-ul fără prescripție
+    incarcaMedicamente(); // Încărcăm prescripția pacientului nou
   }
 }

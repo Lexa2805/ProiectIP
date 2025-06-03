@@ -1,32 +1,35 @@
-/*import 'dart:convert';
+import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class RaportAvarii {
   final String timestamp;
   final String descriere;
-  final String? detalii;
+  final String tipAlarma;
+  final String status;
 
   RaportAvarii({
     required this.timestamp,
     required this.descriere,
-    this.detalii,
+    required this.tipAlarma,
+    required this.status,
   });
 
   factory RaportAvarii.fromJson(Map<String, dynamic> json) {
     return RaportAvarii(
-      timestamp: json['timestamp'] ?? '',
+      timestamp: json['data_ora'] ?? '',
       descriere: json['descriere'] ?? '',
-      detalii: json['detalii'],
+      tipAlarma: json['tip_alarma'] ?? '',
+      status: json['status'] ?? '',
     );
   }
 }
 
 class GetRobotAvariiEndpoint {
   // Schimbă cu adresa reală când backend-ul e activ
-  static const String baseUrl = 'http://adresa-ta-api';
+  static const String baseUrl = 'http://10.100.1.162:8000';
 
   static Future<List<RaportAvarii>> getAvarii() async {
-    final url = Uri.parse('$baseUrl/avarii');
+    final url = Uri.parse('$baseUrl/api/alarme');
 
     final response = await http.get(url);
     if (response.statusCode == 200) {
@@ -36,4 +39,4 @@ class GetRobotAvariiEndpoint {
       throw Exception('Eroare la încărcarea avariilor: ${response.statusCode}');
     }
   }
-}*/
+}

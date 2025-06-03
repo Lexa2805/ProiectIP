@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:medigo/endpoints/get_robot_raport_endp.dart';
+import 'package:medigo/endpoints/get_robot_avarii_endp.dart';
 //import 'package:medigo/endpoints/get_robot_avarii_endp.dart';
 
 class StatusRobotController extends ChangeNotifier {
@@ -19,7 +20,7 @@ class StatusRobotController extends ChangeNotifier {
 
   Future<void> trimiteComanda(String comanda) async {
     final url = Uri.parse(
-      'http://10.0.2.2:8000/robot/$comanda',
+      'http://10.100.1.162:8000/robot/$comanda',
     ); // pune adresa corectă aici
     try {
       final response = await http.get(url);
@@ -51,34 +52,63 @@ class StatusRobotController extends ChangeNotifier {
     }
   }
 
-  /*List<RaportAvarii> _avarii = [];
-int _currentAvarieIndex = 0;
+  List<RaportAvarii> _avarii = [];
+  List<RaportAvarii> get avarii => _avarii;
+  int get index => _currentAvarieIndex;
 
-Future<void> incarcaAvarii() async {
-  _loading = true;
-  notifyListeners();
+  int _currentAvarieIndex = 0;
 
-  try {
-    final data = await GetRobotAvariiEndpoint.getAvarii();
-    _avarii = data;
-    _currentAvarieIndex = 0;
-  } catch (e) {
-    debugPrint("Eroare la încărcarea avariilor: $e");
-  } finally {
-    _loading = false;
+  Future<void> incarcaAvarii() async {
+    _loading = true;
     notifyListeners();
-  }
-}
 
-String formatAvarie() {
-  if (_avarii.isEmpty) return 'Nicio avarie disponibilă.';
-  final raport = _avarii[_currentAvarieIndex];
-  final data = DateTime.tryParse(raport.timestamp)?.toLocal().toString().split('.')[0] ?? 'Dată invalidă';
-  final descriere = raport.descriere;
-  final detalii = raport.detalii ?? 'Fără detalii';
-  return '[$data]\nDescriere: $descriere\nDetalii: $detalii';
-}
-*/
+    try {
+      final data = await GetRobotAvariiEndpoint.getAvarii();
+      _avarii = data;
+      _currentAvarieIndex = 0;
+    } catch (e) {
+      debugPrint("Eroare la încărcarea avariilor: $e");
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
+  }
+
+  String formatAvarie() {
+    if (_avarii.isEmpty) return 'Nicio avarie disponibilă.';
+
+    final raport = _avarii[_currentAvarieIndex];
+    final data =
+        DateTime.tryParse(
+          raport.timestamp,
+        )?.toLocal().toString().split('.')[0] ??
+        'Dată invalidă';
+
+    final descriere = raport.descriere;
+    final tip = raport.tipAlarma;
+    final status = raport.status;
+
+    return '[$data]\nTip: $tip\nDescriere: $descriere\nStatus: $status';
+  }
+
+  void avarieUrmatoare() {
+    if (_currentAvarieIndex < _avarii.length - 1) {
+      _currentAvarieIndex++;
+      notifyListeners();
+    }
+  }
+
+  void avariePrecedenta() {
+    if (_currentAvarieIndex > 0) {
+      _currentAvarieIndex--;
+      notifyListeners();
+    }
+  }
+
+  RaportAvarii? get avarieCurenta {
+    if (_avarii.isEmpty) return null;
+    return _avarii[_currentAvarieIndex];
+  }
 
   void toggleModSmartphone(bool value) {
     modSmartphone = value;

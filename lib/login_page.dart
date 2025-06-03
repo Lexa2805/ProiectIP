@@ -33,7 +33,7 @@ class LoginPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                'MediGo\nNoi ți-o livrăm mai bine',
+                'MediGo\nNoi o livrăm mai bine',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 28,
@@ -116,24 +116,6 @@ class LoginPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/forgot_password');
-                            },
-                            child: const Text('Ai uitat parola?'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/signup');
-                            },
-                            child: const Text('Înregistrează-te'),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ),
