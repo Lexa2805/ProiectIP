@@ -26,7 +26,7 @@ class RaportAvarii {
 
 class GetRobotAvariiEndpoint {
   // Schimbă cu adresa reală când backend-ul e activ
-  static const String baseUrl = 'http://10.100.1.162:8000';
+  static const String baseUrl = 'http://192.168.1.137:8000';
 
   static Future<List<RaportAvarii>> getAvarii() async {
     final url = Uri.parse('$baseUrl/api/alarme');

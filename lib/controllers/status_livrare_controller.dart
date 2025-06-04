@@ -25,7 +25,7 @@ class DashboardController extends ChangeNotifier {
 
     try {
       final url = Uri.parse(
-        'http://192.168.1.137:8000/api/confirmari_rfid/ultimul',
+        'http://adresa_ta_backend/asistente/api/confirmari_rfid/ultimul',
       );
       final response = await http.get(url);
 

@@ -20,7 +20,7 @@ class StatusRobotController extends ChangeNotifier {
 
   Future<void> trimiteComanda(String comanda) async {
     final url = Uri.parse(
-      'http://10.100.1.162:8000/robot/$comanda',
+      'http://192.168.1.137:8000/robot/$comanda',
     ); // pune adresa corectă aici
     try {
       final response = await http.get(url);

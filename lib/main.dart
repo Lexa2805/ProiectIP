@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'controllers/login_controller.dart';
 import 'controllers/signup_controller.dart';
+import 'package:medigo/controllers/rc_controller.dart';
 import 'controllers/status_robot_controller.dart';
 import 'login_page.dart';
 import 'splash_screen.dart';
@@ -16,6 +17,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => LoginController()),
         ChangeNotifierProvider(create: (_) => SignupController()),
         ChangeNotifierProvider(create: (_) => StatusRobotController()),
+        ChangeNotifierProvider(create: (_) => RcController()),
       ],
       child: const MediGo(),
     ),

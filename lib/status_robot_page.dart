@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:medigo/controllers/status_robot_controller.dart';
+import 'package:medigo/controllers/rc_controller.dart';
 
 class StatusRobotPage extends StatelessWidget {
   const StatusRobotPage({Key? key}) : super(key: key);
@@ -8,6 +9,9 @@ class StatusRobotPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<StatusRobotController>(context);
+    final rcController = Provider.of<RcController>(context);
+    final modSmartphone = rcController.isOn;
+
     final blueAccent = Colors.blueAccent;
     final lightGrey = const Color(0xFFF0F0F0);
 
@@ -34,20 +38,23 @@ class StatusRobotPage extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Row(
-              children: [
-                Switch(
-                  value: controller.modSmartphone,
-                  onChanged: controller.toggleModSmartphone,
-                  activeColor: blueAccent,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  controller.modSmartphone ? 'Mod Smartphone' : 'Mod Automat',
-                  style: TextStyle(color: blueAccent.shade400, fontSize: 16),
-                ),
-              ],
+            Consumer<RcController>(
+              builder: (context, rcController, _) => Row(
+                children: [
+                  Switch(
+                    value: rcController.isOn,
+                    onChanged: rcController.toggleRcSwitch,
+                    activeColor: blueAccent,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    rcController.isOn ? 'Mod Smartphone' : 'Mod Automat',
+                    style: TextStyle(color: blueAccent.shade400, fontSize: 16),
+                  ),
+                ],
+              ),
             ),
+
             const SizedBox(height: 20),
 
             // Zona cu cele 5 butoane (săgeți + STOP)
@@ -57,7 +64,7 @@ class StatusRobotPage extends StatelessWidget {
                 Center(
                   child: ElevatedButton(
                     onPressed: () {
-                      if (controller.modSmartphone) {
+                      if (modSmartphone) {
                         controller.trimiteComanda("fata");
                       }
                     },
@@ -80,7 +87,7 @@ class StatusRobotPage extends StatelessWidget {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        if (controller.modSmartphone) {
+                        if (modSmartphone) {
                           controller.trimiteComanda("stanga");
                         }
                       },
@@ -97,7 +104,7 @@ class StatusRobotPage extends StatelessWidget {
                     const SizedBox(width: 16),
                     ElevatedButton(
                       onPressed: () {
-                        if (controller.modSmartphone) {
+                        if (modSmartphone) {
                           controller.trimiteComanda("stop");
                         }
                       },
@@ -119,7 +126,7 @@ class StatusRobotPage extends StatelessWidget {
                     const SizedBox(width: 16),
                     ElevatedButton(
                       onPressed: () {
-                        if (controller.modSmartphone) {
+                        if (modSmartphone) {
                           controller.trimiteComanda("dreapta");
                         }
                       },
@@ -144,7 +151,7 @@ class StatusRobotPage extends StatelessWidget {
                 Center(
                   child: ElevatedButton(
                     onPressed: () {
-                      if (controller.modSmartphone) {
+                      if (modSmartphone) {
                         controller.trimiteComanda("spate");
                       }
                     },

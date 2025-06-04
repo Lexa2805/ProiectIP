@@ -25,7 +25,7 @@ class RaportRobot {
 }
 
 class GetRobotRaportEndpoint {
-  static const String baseUrl = 'http://10.100.1.162:8000';
+  static const String baseUrl = 'http://192.168.1.137:8000';
 
   static Future<List<RaportRobot>> getRapoarte() async {
     final url = Uri.parse('$baseUrl/rapoarte');

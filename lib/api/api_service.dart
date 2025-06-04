@@ -4,7 +4,7 @@ import 'package:medigo/endpoints/delivery_confirm_request_endp.dart';
 import 'package:medigo/endpoints/get_robot_raport_endp.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://10.100.1.162:8000';
+  static const String baseUrl = 'http://192.168.1.137:8000';
 
   // Apelare Login
   static Future<String> login(String email, String password) async {
